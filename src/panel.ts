@@ -31,17 +31,17 @@ export class FilterPanel {
 
     constructor(private readonly host: PanelHost) {
         this.root = document.createElement("div");
-        this.root.className = "hsplus-bs-panel";
+        this.root.className = "hsplus-bankplus-panel";
         this.root.innerHTML = `
-<div class="hsplus-bs-section">
-    <div class="hsplus-bs-heading">Filters</div>
-    <div class="hsplus-bs-row">
-        <input class="hsplus-bs-input" data-role="new-name" type="text" placeholder="New filter name" autocomplete="off" spellcheck="false">
-        <button class="hsplus-bs-button" data-role="new">Add</button>
+<div class="hsplus-bankplus-section">
+    <div class="hsplus-bankplus-heading">Filters</div>
+    <div class="hsplus-bankplus-row">
+        <input class="hsplus-bankplus-input" data-role="new-name" type="text" placeholder="New filter name" autocomplete="off" spellcheck="false">
+        <button class="hsplus-bankplus-button" data-role="new">Add</button>
     </div>
-    <div class="hsplus-bs-list" data-role="list"></div>
+    <div class="hsplus-bankplus-list" data-role="list"></div>
 </div>
-<div class="hsplus-bs-section" data-role="editor"></div>
+<div class="hsplus-bankplus-section" data-role="editor"></div>
 `;
         this.listEl = this.root.querySelector('[data-role="list"]')!;
         this.editorEl = this.root.querySelector('[data-role="editor"]')!;
@@ -87,21 +87,21 @@ export class FilterPanel {
         this.listEl.innerHTML = "";
         if (!filters.length) {
             const empty = document.createElement("div");
-            empty.className = "hsplus-bs-muted";
+            empty.className = "hsplus-bankplus-muted";
             empty.textContent = "No filters yet. Name one above and add it.";
             this.listEl.appendChild(empty);
             return;
         }
         for (const f of filters) {
             const row = document.createElement("div");
-            row.className = "hsplus-bs-filter" + (f === this.editing ? " is-selected" : "");
+            row.className = "hsplus-bankplus-filter" + (f === this.editing ? " is-selected" : "");
             const name = document.createElement("span");
-            name.className = "hsplus-bs-filter__name";
+            name.className = "hsplus-bankplus-filter__name";
             name.textContent = `${f.name} (${f.items.length})`;
             name.title = f === this.editing ? "Collapse" : "Edit this filter";
             row.appendChild(name);
             const del = document.createElement("button");
-            del.className = "hsplus-bs-button hsplus-bs-button--small" + (this.pendingDelete === f.id ? " is-danger" : "");
+            del.className = "hsplus-bankplus-button hsplus-bankplus-button--small" + (this.pendingDelete === f.id ? " is-danger" : "");
             del.textContent = this.pendingDelete === f.id ? "Delete?" : "×";
             del.title = this.pendingDelete === f.id ? "Click again to delete" : "Delete filter";
             row.appendChild(del);
@@ -133,7 +133,7 @@ export class FilterPanel {
         this.editorEl.innerHTML = "";
         if (!f) {
             const hint = document.createElement("div");
-            hint.className = "hsplus-bs-muted";
+            hint.className = "hsplus-bankplus-muted";
             hint.textContent = "Select a filter to edit its items. In the bank, pick a filter from the drop-down and press + to add items by clicking them.";
             this.editorEl.appendChild(hint);
             return;
@@ -141,9 +141,9 @@ export class FilterPanel {
 
         // Name (rename in place).
         const nameRow = document.createElement("div");
-        nameRow.className = "hsplus-bs-row";
+        nameRow.className = "hsplus-bankplus-row";
         const nameInput = document.createElement("input");
-        nameInput.className = "hsplus-bs-input";
+        nameInput.className = "hsplus-bankplus-input";
         nameInput.type = "text";
         nameInput.value = f.name;
         nameInput.autocomplete = "off";
@@ -168,21 +168,21 @@ export class FilterPanel {
 
         // Members.
         const membersHead = document.createElement("div");
-        membersHead.className = "hsplus-bs-heading";
+        membersHead.className = "hsplus-bankplus-heading";
         membersHead.textContent = `Items in this filter (${f.items.length})`;
         this.editorEl.appendChild(membersHead);
         const members = document.createElement("div");
-        members.className = "hsplus-bs-grid";
+        members.className = "hsplus-bankplus-grid";
         if (!f.items.length) {
             const empty = document.createElement("div");
-            empty.className = "hsplus-bs-muted";
+            empty.className = "hsplus-bankplus-muted";
             empty.textContent = "Nothing yet. Search below to add items.";
             members.appendChild(empty);
         }
         // In the order they were added, so the newest is always at the end.
         for (const id of f.items) {
             const tile = document.createElement("div");
-            tile.className = "hsplus-bs-tile";
+            tile.className = "hsplus-bankplus-tile";
             tile.title = `${itemName(id)} — click to remove`;
             tile.appendChild(itemIcon(id, 2));
             isolateInput(tile);
@@ -197,20 +197,21 @@ export class FilterPanel {
 
         // Picker over every item in the game.
         const pickHead = document.createElement("div");
-        pickHead.className = "hsplus-bs-heading";
+        pickHead.className = "hsplus-bankplus-heading";
         pickHead.textContent = "Add items";
         this.editorEl.appendChild(pickHead);
         const search = document.createElement("input");
-        search.className = "hsplus-bs-input";
+        search.className = "hsplus-bankplus-input";
         search.type = "text";
         search.placeholder = "Search all items…";
         search.autocomplete = "off";
         search.spellcheck = false;
         search.value = this.pickerQuery;
+        search.dataset.role = "picker";
         isolateInput(search);
         this.editorEl.appendChild(search);
         const results = document.createElement("div");
-        results.className = "hsplus-bs-results";
+        results.className = "hsplus-bankplus-results";
         this.editorEl.appendChild(results);
 
         const renderResults = () => {
@@ -218,7 +219,7 @@ export class FilterPanel {
             const q = this.pickerQuery.trim().toLowerCase();
             if (!q) {
                 const hint = document.createElement("div");
-                hint.className = "hsplus-bs-muted";
+                hint.className = "hsplus-bankplus-muted";
                 hint.textContent = "Type part of an item name.";
                 results.appendChild(hint);
                 return;
@@ -227,14 +228,14 @@ export class FilterPanel {
             const matches = itemCatalog().filter(it => it.lower.includes(q));
             for (const it of matches.slice(0, MAX_PICKER_RESULTS)) {
                 const row = document.createElement("div");
-                row.className = "hsplus-bs-result" + (have.has(it.id) ? " is-added" : "");
+                row.className = "hsplus-bankplus-result" + (have.has(it.id) ? " is-added" : "");
                 row.appendChild(itemIcon(it.id, 1.5));
                 const label = document.createElement("span");
-                label.className = "hsplus-bs-result__name";
+                label.className = "hsplus-bankplus-result__name";
                 label.textContent = it.name;
                 row.appendChild(label);
                 const mark = document.createElement("span");
-                mark.className = "hsplus-bs-result__mark";
+                mark.className = "hsplus-bankplus-result__mark";
                 mark.textContent = have.has(it.id) ? "✓" : "+";
                 row.appendChild(mark);
                 isolateInput(row);
@@ -251,13 +252,13 @@ export class FilterPanel {
             }
             if (matches.length > MAX_PICKER_RESULTS) {
                 const more = document.createElement("div");
-                more.className = "hsplus-bs-muted";
+                more.className = "hsplus-bankplus-muted";
                 more.textContent = `${matches.length - MAX_PICKER_RESULTS} more — keep typing to narrow it down.`;
                 results.appendChild(more);
             }
             if (!matches.length) {
                 const none = document.createElement("div");
-                none.className = "hsplus-bs-muted";
+                none.className = "hsplus-bankplus-muted";
                 none.textContent = "No items match.";
                 results.appendChild(none);
             }
@@ -274,7 +275,7 @@ export class FilterPanel {
         const pos = oldSearch.selectionStart ?? oldSearch.value.length;
         const scroll = this.root.scrollTop;
         this.renderEditor();
-        const search = this.editorEl.querySelector<HTMLInputElement>('input[placeholder="Search all items…"]');
+        const search = this.editorEl.querySelector<HTMLInputElement>('[data-role="picker"]');
         if (search) {
             search.focus();
             search.setSelectionRange(pos, pos);
@@ -284,7 +285,7 @@ export class FilterPanel {
 }
 
 export const PANEL_CSS = `
-.hsplus-bs-panel {
+.hsplus-bankplus-panel {
     padding: 8px 10px 16px;
     font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 13px;
@@ -292,30 +293,30 @@ export const PANEL_CSS = `
     box-sizing: border-box;
     width: 100%;
 }
-.hsplus-bs-section + .hsplus-bs-section {
+.hsplus-bankplus-section + .hsplus-bankplus-section {
     margin-top: 14px;
     padding-top: 12px;
     border-top: 1px solid var(--theme-border, #353535);
 }
-.hsplus-bs-heading {
+.hsplus-bankplus-heading {
     font-weight: 700;
     font-size: 13px;
     margin: 6px 0;
     color: var(--theme-text-primary, #e6e6e6);
 }
-.hsplus-bs-muted {
+.hsplus-bankplus-muted {
     color: var(--theme-text-secondary, #9a9a9a);
     font-size: 12px;
     line-height: 1.4;
     margin: 4px 0;
 }
-.hsplus-bs-row {
+.hsplus-bankplus-row {
     display: flex;
     gap: 6px;
     align-items: center;
     margin: 4px 0;
 }
-.hsplus-bs-input {
+.hsplus-bankplus-input {
     flex: 1 1 auto;
     min-width: 0;
     width: 100%;
@@ -328,10 +329,10 @@ export const PANEL_CSS = `
     font: inherit;
     outline: none;
 }
-.hsplus-bs-input:focus {
+.hsplus-bankplus-input:focus {
     border-color: var(--theme-accent, #f9f449);
 }
-.hsplus-bs-button {
+.hsplus-bankplus-button {
     flex: 0 0 auto;
     padding: 6px 10px;
     border: 1px solid var(--theme-border, #353535);
@@ -341,26 +342,26 @@ export const PANEL_CSS = `
     font: inherit;
     cursor: pointer;
 }
-.hsplus-bs-button:hover {
+.hsplus-bankplus-button:hover {
     background: var(--theme-background-mute, #1e1e1e);
 }
-.hsplus-bs-button--small {
+.hsplus-bankplus-button--small {
     padding: 2px 8px;
     font-size: 12px;
     line-height: 1.4;
 }
-.hsplus-bs-button.is-danger {
+.hsplus-bankplus-button.is-danger {
     background: var(--theme-danger, #ef4444);
     border-color: var(--theme-danger, #ef4444);
     color: #fff;
 }
-.hsplus-bs-list {
+.hsplus-bankplus-list {
     display: flex;
     flex-direction: column;
     gap: 3px;
     margin-top: 6px;
 }
-.hsplus-bs-filter {
+.hsplus-bankplus-filter {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -368,43 +369,43 @@ export const PANEL_CSS = `
     border-radius: 6px;
     border: 1px solid transparent;
 }
-.hsplus-bs-filter.is-selected {
+.hsplus-bankplus-filter.is-selected {
     border-color: var(--theme-accent, #f9f449);
     background: var(--theme-background-soft, #2a2a2a);
 }
-.hsplus-bs-filter__name {
+.hsplus-bankplus-filter__name {
     flex: 1 1 auto;
     cursor: pointer;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.hsplus-bs-filter__name:hover {
+.hsplus-bankplus-filter__name:hover {
     text-decoration: underline;
 }
-.hsplus-bs-grid {
+.hsplus-bankplus-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
     margin: 4px 0 8px;
 }
-.hsplus-bs-tile {
+.hsplus-bankplus-tile {
     padding: 2px;
     border-radius: 6px;
     border: 1px solid var(--theme-border, #353535);
     background: var(--theme-background-mute, #1e1e1e);
     cursor: pointer;
 }
-.hsplus-bs-tile:hover {
+.hsplus-bankplus-tile:hover {
     border-color: var(--theme-danger, #ef4444);
 }
-.hsplus-bs-results {
+.hsplus-bankplus-results {
     display: flex;
     flex-direction: column;
     gap: 2px;
     margin-top: 6px;
 }
-.hsplus-bs-result {
+.hsplus-bankplus-result {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -412,19 +413,19 @@ export const PANEL_CSS = `
     border-radius: 6px;
     cursor: pointer;
 }
-.hsplus-bs-result:hover {
+.hsplus-bankplus-result:hover {
     background: var(--theme-background-soft, #2a2a2a);
 }
-.hsplus-bs-result.is-added {
+.hsplus-bankplus-result.is-added {
     opacity: .55;
 }
-.hsplus-bs-result__name {
+.hsplus-bankplus-result__name {
     flex: 1 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.hsplus-bs-result__mark {
+.hsplus-bankplus-result__mark {
     flex: 0 0 auto;
     width: 1.2em;
     text-align: center;

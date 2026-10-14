@@ -12,9 +12,9 @@ const BANK_TABLE_SELECTOR = ".hs-item-table--bank";
 const CELL_SELECTOR = `${BANK_TABLE_SELECTOR} .hs-item-table__cell[data-slot]`;
 const CONTROLS_ID = "hsplus-bankplus-controls";
 const INPUT_ID = "hsplus-bankplus";
-const SELECT_ID = "hsplus-bankplus-filter";
+const SELECT_ID = "hsplus-bankplus-select";
 const ADD_ID = "hsplus-bankplus-add";
-const ADDING_CLASS = "hsplus-bs-adding";
+const ADDING_CLASS = "hsplus-bankplus-adding";
 const STYLE_ID = "hsplus-bankplus-style";
 const SEARCH_WRAP_CLASS = "hsplus-bankplus-search";
 const CLEAR_CLASS = "hsplus-bankplus-clear";
@@ -98,6 +98,7 @@ export default class BankPlus extends Plugin {
         this.setAddMode(false);
         this.teardown();
         this.unmountPanel();
+        this.removeStyle();
     }
 
     // Both fire after the game's own method has run, so the bank menu is in the DOM here.
@@ -169,7 +170,7 @@ export default class BankPlus extends Plugin {
             menu.classList.remove(ADDING_CLASS);
             menu.querySelectorAll<HTMLElement>(CELL_SELECTOR).forEach(cell => {
                 cell.style.display = "";
-                cell.classList.remove("hsplus-bs-member", "hsplus-bs-nonmember");
+                cell.classList.remove("hsplus-bankplus-member", "hsplus-bankplus-nonmember");
             });
         }
     }
@@ -375,7 +376,7 @@ export default class BankPlus extends Plugin {
             // Nothing active: leave the bank exactly as the game draws it.
             cells.forEach(cell => {
                 cell.style.display = "";
-                cell.classList.remove("hsplus-bs-member", "hsplus-bs-nonmember");
+                cell.classList.remove("hsplus-bankplus-member", "hsplus-bankplus-nonmember");
             });
             return;
         }
@@ -391,8 +392,8 @@ export default class BankPlus extends Plugin {
                 show = inFilter && matches;
             }
             cell.style.display = show ? "" : "none";
-            cell.classList.toggle("hsplus-bs-member", this.addMode && !!item && member);
-            cell.classList.toggle("hsplus-bs-nonmember", this.addMode && !!item && !member);
+            cell.classList.toggle("hsplus-bankplus-member", this.addMode && !!item && member);
+            cell.classList.toggle("hsplus-bankplus-nonmember", this.addMode && !!item && !member);
         });
     }
 
@@ -538,12 +539,12 @@ export default class BankPlus extends Plugin {
     color: #fff;
 }
 /* Add mode: members outlined, everything else dimmed, slots become toggles. */
-#${BANK_MENU_ID}.${ADDING_CLASS} .hs-item-table__cell.hsplus-bs-member {
+#${BANK_MENU_ID}.${ADDING_CLASS} .hs-item-table__cell.hsplus-bankplus-member {
     outline: 2px solid var(--theme-accent, #f9f449);
     outline-offset: -2px;
     border-radius: .25rem;
 }
-#${BANK_MENU_ID}.${ADDING_CLASS} .hs-item-table__cell.hsplus-bs-nonmember {
+#${BANK_MENU_ID}.${ADDING_CLASS} .hs-item-table__cell.hsplus-bankplus-nonmember {
     opacity: .4;
 }
 #${BANK_MENU_ID}.${ADDING_CLASS} ${BANK_TABLE_SELECTOR} .hs-inventory-item {
@@ -552,5 +553,9 @@ export default class BankPlus extends Plugin {
 ${PANEL_CSS}
 `;
         document.head.appendChild(style);
+    }
+
+    private removeStyle(): void {
+        document.getElementById(STYLE_ID)?.remove();
     }
 }

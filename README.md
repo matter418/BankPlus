@@ -38,7 +38,9 @@ The bundled output ends up at `dist/BankPlus.js`. To test it locally against a d
 
 ## How it works (briefly)
 
-The bank's item grid has one cell per slot. When the bank opens, the plugin inserts an input into the bank's header and, as you type, hides every cell whose slot is empty or whose item name does not contain the text. The grid wraps, so the remaining cells flow together. The plugin listens to the game's own bank-changed events to re-apply the filter after a withdrawal, deposit or reorganisation, and restores every cell when the bank closes.
+The bank's item grid has one cell per slot. When the bank opens, the plugin inserts its controls into the bank's header and hides every cell whose slot is empty, whose item is not in the chosen filter, or whose item name does not contain the search text. The grid wraps, so the remaining cells flow together. The plugin listens to the game's own bank-changed events to re-apply the view after a withdrawal, deposit or reorganisation, and restores every cell when the bank closes.
+
+Filters are lists of item ids saved in the plugin's per-character data. The side-panel editor picks items from the game's own item definitions and draws them from its sprite sheet. Add mode (**+**) shows the whole bank with the filter's items outlined and takes over clicks on bank slots, so a click toggles the item in the filter instead of withdrawing it; the game's slot handling comes back when you press **Done** or Escape.
 
 ## License
 

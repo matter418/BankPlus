@@ -103,11 +103,11 @@ export function spritePosition(id: number): string {
 /** A square icon of `size` rem for the item, drawn from the game's sheet. */
 export function itemIcon(id: number, sizeRem: number): HTMLElement {
     const box = document.createElement("div");
-    box.className = "hsplus-bs-icon";
+    box.className = "hsplus-bankplus-icon";
     box.style.width = `${sizeRem}rem`;
     box.style.height = `${sizeRem}rem`;
     const img = document.createElement("div");
-    img.className = "hsplus-bs-icon__image";
+    img.className = "hsplus-bankplus-icon__image";
     img.style.backgroundPosition = spritePosition(id);
     img.style.transform = `scale(${sizeRem / 3})`;
     box.appendChild(img);
@@ -115,12 +115,12 @@ export function itemIcon(id: number, sizeRem: number): HTMLElement {
 }
 
 export const ICON_CSS = `
-.hsplus-bs-icon {
+.hsplus-bankplus-icon {
     position: relative;
     overflow: hidden;
     flex: 0 0 auto;
 }
-.hsplus-bs-icon__image {
+.hsplus-bankplus-icon__image {
     position: absolute;
     left: 0;
     top: 0;
