@@ -1,7 +1,7 @@
 {
   "name": "BankPlus",
   "version": "1.0.0",
-  "description": "Adds a search bar to the bank window that filters the items shown down to the ones whose name contains the search text.",
+  "description": "Bank+ — a search box in the bank window plus your own named item filters (like Smithing or Potion making), so you can find what you need fast.",
   "packageManager": "yarn@4.9.1",
   "engines": {
     "node": ">=22.0.0"
