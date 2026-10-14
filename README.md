@@ -1,4 +1,4 @@
-# Bank Search
+# Bank+
 
 A [Highspell+](https://github.com/matter418/HighSpellPlus) plugin that adds a search box to the bank window. Type part of an item's name and the bank shows only the matching items, packed together so they are easy to find.
 
@@ -11,20 +11,29 @@ A [Highspell+](https://github.com/matter418/HighSpellPlus) plugin that adds a se
 
 Withdrawing and depositing work as normal while a search is active, and the view keeps up as the bank changes.
 
+## Filters
+
+Filters are your own named groups of items, like "Smithing" or "Potion making", chosen from the drop-down next to the search box. Pick one and the bank shows only those items; type in the search box to narrow further within it.
+
+- **Making filters:** open the **Bank+** panel from the plugin rail at the side of the game. Name a filter and add it, then search the game's full item list and click items to add them. Click an item in the filter to remove it. Filters can be renamed and deleted there too.
+- **Adding from the bank:** with a filter chosen in the drop-down, press **+** in the bank header. Every bank item shows again, the filter's items are outlined, and clicking an item toggles it in or out of the filter. Press **Done** (or Escape) to finish.
+
+Filters are saved per character.
+
 ## Installation
 
-The intended way to install is through the Highspell+ plugin hub. Open Highspell+, go to the plugins menu, find **Bank Search**, and enable it.
+The intended way to install is through the Highspell+ plugin hub. Open Highspell+, go to the plugins menu, find **Bank+**, and enable it.
 
 ## Building from source
 
 ```bash
-git clone https://github.com/matter418/BankSearch.git
-cd BankSearch
+git clone https://github.com/matter418/BankPlus.git
+cd BankPlus
 yarn install
 yarn build
 ```
 
-The bundled output ends up at `dist/BankSearch.js`. To test it locally against a development copy of Highspell+, copy that file into the client's `src/renderer/client/plugins/` and launch the client.
+The bundled output ends up at `dist/BankPlus.js`. To test it locally against a development copy of Highspell+, copy that file into the client's `src/renderer/client/plugins/` and launch the client.
 
 ## How it works (briefly)
 

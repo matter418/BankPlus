@@ -1,5 +1,5 @@
 {
-  "name": "BankSearch",
+  "name": "BankPlus",
   "version": "1.0.0",
   "description": "Adds a search bar to the bank window that filters the items shown down to the ones whose name contains the search text.",
   "packageManager": "yarn@4.9.1",
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "node build.mjs"
   },
-  "main": "src/BankSearch.ts",
+  "main": "src/BankPlus.ts",
   "license": "GPL-3.0-or-later",
   "author": "matter",
   "devDependencies": {
