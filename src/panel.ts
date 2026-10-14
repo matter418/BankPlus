@@ -98,7 +98,7 @@ export class FilterPanel {
             const name = document.createElement("span");
             name.className = "hsplus-bs-filter__name";
             name.textContent = `${f.name} (${f.items.length})`;
-            name.title = "Edit this filter";
+            name.title = f === this.editing ? "Collapse" : "Edit this filter";
             row.appendChild(name);
             const del = document.createElement("button");
             del.className = "hsplus-bs-button hsplus-bs-button--small" + (this.pendingDelete === f.id ? " is-danger" : "");
@@ -107,7 +107,8 @@ export class FilterPanel {
             row.appendChild(del);
             isolateInput(row);
             name.addEventListener("click", () => {
-                this.editing = f;
+                // Clicking the open filter again collapses it.
+                this.editing = this.editing === f ? null : f;
                 this.pendingDelete = null;
                 this.render();
             });
@@ -178,7 +179,8 @@ export class FilterPanel {
             empty.textContent = "Nothing yet. Search below to add items.";
             members.appendChild(empty);
         }
-        for (const id of [...f.items].sort((a, b) => itemName(a).localeCompare(itemName(b)))) {
+        // In the order they were added, so the newest is always at the end.
+        for (const id of f.items) {
             const tile = document.createElement("div");
             tile.className = "hsplus-bs-tile";
             tile.title = `${itemName(id)} — click to remove`;

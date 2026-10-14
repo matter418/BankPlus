@@ -1,4 +1,4 @@
-import { Plugin, PanelManager } from "@ryelite/core";
+import { Plugin, PanelManager, SettingsTypes } from "@ryelite/core";
 import { BankFilter, FilterData, filtersOf, isolateInput, itemName } from "./filters";
 import { FilterPanel, PANEL_CSS } from "./panel";
 
@@ -16,6 +16,8 @@ const SELECT_ID = "hsplus-bankplus-filter";
 const ADD_ID = "hsplus-bankplus-add";
 const ADDING_CLASS = "hsplus-bs-adding";
 const STYLE_ID = "hsplus-bankplus-style";
+const SEARCH_WRAP_CLASS = "hsplus-bankplus-search";
+const CLEAR_CLASS = "hsplus-bankplus-clear";
 // The filter editor is a page in the plugin rail (the icon strip at the side of the game),
 // opened by this icon, like TCG's 🎴.
 const PANEL_ICON = "🏦";
@@ -53,6 +55,31 @@ export default class BankPlus extends Plugin {
     private panel: FilterPanel | null = null;
     private panelManager: PanelManager = new PanelManager();
     private panelMounted = false;
+    private searchWrap: HTMLElement | null = null;
+
+    constructor() {
+        super();
+        this.settings.showSearch = {
+            text: "Show search bar",
+            type: SettingsTypes.checkbox,
+            value: true,
+            callback: () => this.refreshVisibility(),
+        };
+        this.settings.showFilters = {
+            text: "Show filters",
+            type: SettingsTypes.checkbox,
+            value: true,
+            callback: () => this.refreshVisibility(),
+        };
+    }
+
+    private showSearch(): boolean {
+        return this.settings.showSearch?.value !== false;
+    }
+
+    private showFilters(): boolean {
+        return this.settings.showFilters?.value !== false;
+    }
 
     init(): void {
         this.log("Initialized");
@@ -90,6 +117,7 @@ export default class BankPlus extends Plugin {
     }
 
     private currentFilter(): BankFilter | null {
+        if (!this.showFilters()) return null;
         return this.filters().find(f => f.id === this.selectedId) ?? null;
     }
 
@@ -123,16 +151,17 @@ export default class BankPlus extends Plugin {
         }
         this.refreshSelect();
         this.listen();
-        this.applyFilter();
+        this.refreshVisibility(); // applies the filter too
     }
 
-    /** Remove the controls, forget the text search, and show every slot again. */
+    /** Remove the controls and show every slot again. The search text and the chosen filter
+     *  are kept, so the bank reopens the way it was left. */
     private teardown(): void {
         this.unlisten();
-        this.query = "";
         this.controls?.remove();
         this.controls = null;
         this.input = null;
+        this.searchWrap = null;
         this.select = null;
         this.addBtn = null;
         const menu = this.bankMenu();
@@ -157,20 +186,42 @@ export default class BankPlus extends Plugin {
         input.spellcheck = false;
         input.value = this.query;
         isolateInput(input);
+        const clearSearch = () => {
+            input.value = "";
+            this.query = "";
+            clear.style.display = "none";
+            this.applyFilter();
+        };
         input.addEventListener("input", () => {
             this.query = input.value;
+            clear.style.display = input.value ? "" : "none";
             this.applyFilter();
         });
         // Escape clears the search and gives the keyboard back to the game.
         input.addEventListener("keydown", e => {
             if (e.key === "Escape") {
-                input.value = "";
-                this.query = "";
-                this.applyFilter();
+                clearSearch();
                 input.blur();
             }
         });
-        box.appendChild(input);
+        // The search box and its clear button share a wrapper so the × can sit inside the box.
+        const wrap = document.createElement("span");
+        wrap.className = SEARCH_WRAP_CLASS;
+        wrap.appendChild(input);
+        const clear = document.createElement("button");
+        clear.type = "button";
+        clear.className = CLEAR_CLASS;
+        clear.textContent = "×";
+        clear.title = "Clear search";
+        clear.style.display = this.query ? "" : "none";
+        isolateInput(clear);
+        clear.addEventListener("click", () => {
+            clearSearch();
+            input.focus();
+        });
+        wrap.appendChild(clear);
+        box.appendChild(wrap);
+        this.searchWrap = wrap;
 
         const select = document.createElement("select");
         select.id = SELECT_ID;
@@ -220,6 +271,20 @@ export default class BankPlus extends Plugin {
         }
         select.value = this.selectedId;
         this.refreshAddButton();
+    }
+
+    /** Apply the "Show search bar" / "Show filters" settings to the header controls. */
+    private refreshVisibility(): void {
+        if (!this.showSearch() && this.query) {
+            this.query = "";
+            if (this.input) this.input.value = "";
+        }
+        if (!this.showFilters()) this.setAddMode(false);
+        if (this.searchWrap) this.searchWrap.style.display = this.showSearch() ? "" : "none";
+        if (this.select) this.select.style.display = this.showFilters() ? "" : "none";
+        if (this.controls) this.controls.style.display = this.showSearch() || this.showFilters() ? "" : "none";
+        this.refreshAddButton();
+        this.applyFilter();
     }
 
     private refreshAddButton(): void {
@@ -397,11 +462,40 @@ export default class BankPlus extends Plugin {
     outline: none;
     color-scheme: dark;
 }
-#${INPUT_ID} {
+.${SEARCH_WRAP_CLASS} {
+    position: relative;
+    display: flex;
     flex: 1 1 8rem;
     min-width: 4rem;
     max-width: 12rem;
-    padding: 0 .375rem;
+}
+#${INPUT_ID} {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    padding: 0 1.5rem 0 .375rem; /* room for the × */
+}
+.${CLEAR_CLASS} {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 1.5rem;
+    height: 1.125rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--hs-color-warning, #ff4422);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.125rem;
+    text-align: center;
+    text-shadow: none;
+    cursor: pointer;
+    opacity: .9;
+}
+.${CLEAR_CLASS}:hover {
+    opacity: 1;
 }
 #${INPUT_ID}::placeholder {
     color: var(--hs-color-menu-header-fg, #fff);
@@ -422,17 +516,26 @@ export default class BankPlus extends Plugin {
 }
 #${ADD_ID} {
     flex: 0 0 auto;
-    min-width: 1.125rem;
-    padding: 0 .375rem;
+    min-width: 1.5rem;
+    padding: 0 .5rem;
     cursor: pointer;
-    font-weight: 700;
+    /* A plain green button; the header's own font/weight/shadow must not leak in. */
+    appearance: none;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: .75rem;
+    font-weight: 500;
+    letter-spacing: normal;
+    text-shadow: none;
+    box-shadow: none;
+    background: rgb(0, 176, 76);
+    color: #fff;
 }
 #${ADD_ID}:hover {
-    background: var(--hs-color-menu-item-bg-hover, rgba(255, 255, 255, .2));
+    background: rgb(0, 160, 60);
 }
 #${ADD_ID}.is-active {
-    background: var(--theme-accent, #f9f449);
-    color: #1a1a1a;
+    background: rgb(0, 140, 54);
+    color: #fff;
 }
 /* Add mode: members outlined, everything else dimmed, slots become toggles. */
 #${BANK_MENU_ID}.${ADDING_CLASS} .hs-item-table__cell.hsplus-bs-member {

@@ -6,8 +6,9 @@ A [Highspell+](https://github.com/matter418/HighSpellPlus) plugin that adds a se
 
 - Open your bank. The search box sits in the title bar, next to **Bank of HighSpell**.
 - Type to filter. Matching is case-insensitive and looks for the text anywhere in the item name, so `pot` finds every potion and `ore` finds every ore.
-- Clear the box (or press **Escape**) to see the whole bank again.
-- Closing the bank clears the search.
+- Click the red **×** in the box (or press **Escape**) to clear the search and see the whole bank again.
+- The plugin's settings (⚙️) let you hide the search bar or the filters if you only want one of them.
+- The search text and the chosen filter stay as you left them when you close and reopen the bank.
 
 Withdrawing and depositing work as normal while a search is active, and the view keeps up as the bank changes.
 
